@@ -379,6 +379,7 @@ pub unsafe extern "C" fn chewing_config_has_option(
             | "chewing.enable_fullwidth_toggle_key"
             | "chewing.sort_candidates_by_frequency"
             | "chewing.auto_snapshot_selections"
+            | "chewing.fuzzy_tone_input"
     );
 
     ret as c_int
@@ -433,6 +434,7 @@ pub unsafe extern "C" fn chewing_config_get_int(
         "chewing.enable_fullwidth_toggle_key" => option.enable_fullwidth_toggle_key as c_int,
         "chewing.sort_candidates_by_frequency" => option.sort_candidates_by_frequency as c_int,
         "chewing.auto_snapshot_selections" => option.auto_snapshot_selections as c_int,
+        "chewing.fuzzy_tone_input" => option.fuzzy_tone_input as c_int,
         _ => ERROR,
     }
 }
@@ -562,10 +564,17 @@ pub unsafe extern "C" fn chewing_config_set_int(
             ensure_bool!(value);
             options.auto_snapshot_selections = value > 0;
         }
+        "chewing.fuzzy_tone_input" => {
+            ensure_bool!(value);
+            options.fuzzy_tone_input = value > 0;
+        }
         _ => return ERROR,
     };
 
     ctx.editor.set_editor_options(|opt| *opt = options);
+    if name == "chewing.fuzzy_tone_input" {
+        set_layout_conversion_engine(ctx, ctx.kb_compat);
+    }
 
     OK
 }
@@ -669,6 +678,7 @@ pub unsafe extern "C" fn chewing_config_set_str(
             ctx.kb_compat = kb_compat;
             ctx.keymap = keymap;
             ctx.editor.set_syllable_editor(syl);
+            set_layout_conversion_engine(ctx, kb_compat);
         }
         "chewing.selection_keys" => {
             if value.len() != 10 {
@@ -685,6 +695,28 @@ pub unsafe extern "C" fn chewing_config_set_str(
     };
 
     OK
+}
+
+fn layout_supports_fuzzy_tone_input(kb: KeyboardLayoutCompat) -> bool {
+    matches!(kb, KeyboardLayoutCompat::Hsu | KeyboardLayoutCompat::Et26)
+}
+
+fn set_layout_conversion_engine(ctx: &mut ChewingContext, kb: KeyboardLayoutCompat) {
+    if ctx.editor.editor_options().fuzzy_tone_input && layout_supports_fuzzy_tone_input(kb) {
+        ctx.editor
+            .set_conversion_engine(Box::new(FuzzyChewingEngine::new()));
+        ctx.editor.set_editor_options(|options| {
+            options.conversion_engine = ConversionEngineKind::FuzzyChewingEngine;
+            options.lookup_strategy = LookupStrategy::FuzzyPartialPrefix;
+        });
+    } else {
+        ctx.editor
+            .set_conversion_engine(Box::new(ChewingEngine::new()));
+        ctx.editor.set_editor_options(|options| {
+            options.conversion_engine = ConversionEngineKind::ChewingEngine;
+            options.lookup_strategy = LookupStrategy::Standard;
+        });
+    }
 }
 
 /// Sets the current keyboard layout for ctx.
@@ -729,6 +761,7 @@ pub unsafe extern "C" fn chewing_set_KBType(ctx: *mut ChewingContext, kbtype: c_
     ctx.kb_compat = kb_compat;
     ctx.keymap = keymap;
     ctx.editor.set_syllable_editor(syl);
+    set_layout_conversion_engine(ctx, kb_compat);
     if kb_compat == KB::Default && kb_compat as c_int != kbtype {
         -1
     } else {

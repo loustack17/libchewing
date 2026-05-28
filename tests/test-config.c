@@ -54,6 +54,7 @@ void test_has_option()
         ,"chewing.space_is_select_key"
         ,"chewing.conversion_engine"
         ,"chewing.enable_fullwidth_toggle_key"
+        ,"chewing.fuzzy_tone_input"
     };
 
     ctx = chewing_new();
@@ -164,6 +165,9 @@ void test_default_value_options()
 
     ok(chewing_config_get_int(ctx, "chewing.conversion_engine") == 1,
         "default chewing.fuzzy_search_mode shall be 1");
+
+    ok(chewing_config_get_int(ctx, "chewing.fuzzy_tone_input") == 0,
+        "default chewing.fuzzy_tone_input shall be 0");
 
     chewing_delete(ctx);
 }
@@ -756,6 +760,43 @@ void test_new3()
     test_new3_invalid_dict_names();
 }
 
+void test_keyboard_layout_conversion_engine()
+{
+    ChewingContext *ctx;
+
+    ctx = chewing_new();
+    start_testcase(ctx);
+
+    chewing_set_KBType(ctx, KB_HSU);
+    ok(chewing_config_get_int(ctx, "chewing.conversion_engine") == CHEWING_CONVERSION_ENGINE,
+       "KB_HSU should keep normal conversion engine by default");
+
+    ok(chewing_config_set_int(ctx, "chewing.fuzzy_tone_input", 1) == 0,
+       "enable fuzzy tone input should return OK");
+    ok(chewing_config_get_int(ctx, "chewing.conversion_engine") == FUZZY_CHEWING_CONVERSION_ENGINE,
+       "KB_HSU should enable fuzzy conversion engine when fuzzy tone input is enabled");
+
+    chewing_set_KBType(ctx, KB_ET26);
+    ok(chewing_config_get_int(ctx, "chewing.conversion_engine") == FUZZY_CHEWING_CONVERSION_ENGINE,
+       "KB_ET26 should enable fuzzy conversion engine when fuzzy tone input is enabled");
+
+    chewing_set_KBType(ctx, KB_DEFAULT);
+    ok(chewing_config_get_int(ctx, "chewing.conversion_engine") == CHEWING_CONVERSION_ENGINE,
+       "KB_DEFAULT should keep normal conversion engine");
+
+    ok(chewing_config_set_str(ctx, "chewing.keyboard_type", "KB_HSU") == 0,
+       "set KB_HSU by string should return OK");
+    ok(chewing_config_get_int(ctx, "chewing.conversion_engine") == FUZZY_CHEWING_CONVERSION_ENGINE,
+       "KB_HSU string config should enable fuzzy conversion engine when fuzzy tone input is enabled");
+
+    ok(chewing_config_set_str(ctx, "chewing.keyboard_type", "KB_DEFAULT") == 0,
+       "set KB_DEFAULT by string should return OK");
+    ok(chewing_config_get_int(ctx, "chewing.conversion_engine") == CHEWING_CONVERSION_ENGINE,
+       "KB_DEFAULT string config should keep normal conversion engine");
+
+    chewing_delete(ctx);
+}
+
 void test_runtime_version()
 {
     char buf[256];
@@ -803,6 +844,7 @@ int main(int argc, char *argv[])
     test_new2();
     test_new3();
 
+    test_keyboard_layout_conversion_engine();
     test_runtime_version();
 
     return exit_status();

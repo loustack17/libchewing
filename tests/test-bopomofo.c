@@ -1985,6 +1985,21 @@ void test_KB_HSU_example()
     chewing_delete(ctx);
 }
 
+void test_KB_HSU_q_as_first_tone()
+{
+    ChewingContext *ctx;
+
+    ctx = chewing_new();
+    start_testcase(ctx);
+    chewing_set_KBType(ctx, KB_HSU);
+
+    type_keystroke_by_string(ctx, "geq");
+    ok_bopomofo_buffer(ctx, "");
+    ok_preedit_buffer(ctx, "機");
+
+    chewing_delete(ctx);
+}
+
 void test_KB_HSU_choice_append()
 {
     const TestData CHOICE_INFO_APPEND[] = {
@@ -2554,6 +2569,7 @@ void test_KB()
 {
     test_KB_HSU();
     test_KB_HSU_example();
+    test_KB_HSU_q_as_first_tone();
     test_KB_HSU_choice_append();
     test_KB_HSU_choice_append_select();
     test_KB_HSU_JVC();

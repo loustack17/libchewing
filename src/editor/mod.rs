@@ -80,6 +80,7 @@ pub struct EditorOptions {
     pub enable_fullwidth_toggle_key: bool,
     pub sort_candidates_by_frequency: bool,
     pub auto_snapshot_selections: bool,
+    pub fuzzy_tone_input: bool,
 }
 
 impl Default for EditorOptions {
@@ -102,6 +103,7 @@ impl Default for EditorOptions {
             enable_fullwidth_toggle_key: true,
             sort_candidates_by_frequency: false,
             auto_snapshot_selections: false,
+            fuzzy_tone_input: false,
         }
     }
 }

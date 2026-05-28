@@ -31,7 +31,7 @@ impl Hsu {
     fn is_hsu_end_key(&self, key: KeyboardEvent) -> bool {
         // TODO allow customize end key mapping
         match key.ksym.to_unicode() {
-            's' | 'd' | 'f' | 'j' | ' ' => !self.syllable.is_empty(),
+            's' | 'd' | 'f' | 'j' | 'q' | ' ' => !self.syllable.is_empty(),
             _ => false,
         }
     }
