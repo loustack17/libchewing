@@ -586,6 +586,7 @@ void test_select_without_auto_snapshot()
     chewing_delete(ctx);
 }
 
+// FIXME we need a better test that actually test snapshot phrase not changing
 void test_select_with_auto_snapshot()
 {
     ChewingContext *ctx;
@@ -597,8 +598,8 @@ void test_select_with_auto_snapshot()
     chewing_set_phraseChoiceRearward(ctx, 1);
     chewing_config_set_int(ctx, "chewing.auto_snapshot_selections", 1);
 
-    type_keystroke_by_string(ctx, "hk4g4<L><D><D>5");
-    ok_preedit_buffer(ctx, "測士");
+    type_keystroke_by_string(ctx, "hk4hk4g4<<><L><L><D><D>5");
+    ok_preedit_buffer(ctx, "測策士，");
 
     chewing_delete(ctx);
 }
@@ -1421,7 +1422,7 @@ void test_Space_selection_word()
 
 void test_Space_selection_symbol()
 {
-    const char CAND_1[] = "\xE2\x80\xA6" /* … */ ;
+    const char CAND_1[] = "⋯" /* … */ ;
     const char CAND_2[] = "\xE9\x9B\x99\xE7\xB7\x9A\xE6\xA1\x86" /* 雙線框 */ ;
 
     ChewingContext *ctx;

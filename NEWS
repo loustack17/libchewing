@@ -1,6 +1,16 @@
 What's New in libchewing (unreleased)
 ---------------------------------------------------------
 
+* Bug Fixes
+  - dict: protect single character from being permanently excluded.
+
+* Changes
+  - symbols: replaed U+2026 … with U+22EF ⋯ as default.
+
+
+What's New in libchewing 0.12.0 (April 6, 2026)
+---------------------------------------------------------
+
 * Features
   - dict: loading user dictionary are now also controlled by enabled_dicts
     in `chewing_new3()`.
@@ -9,7 +19,7 @@ What's New in libchewing (unreleased)
     dictionaries. Deleted phrases will not be auto learned again.
   - editor: new config option "chewing.auto_snapshot_selections" (default false)
     can be used to control whether phrase selections are automatically locked
-    after any cursor movement.
+    after some condition.
 
 * Bug Fixes
   - dict: fixed parsing trie dictionary file with extension fields.
