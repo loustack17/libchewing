@@ -707,7 +707,7 @@ fn set_layout_conversion_engine(ctx: &mut ChewingContext, kb: KeyboardLayoutComp
             .set_conversion_engine(Box::new(FuzzyChewingEngine::new()));
         ctx.editor.set_editor_options(|options| {
             options.conversion_engine = ConversionEngineKind::FuzzyChewingEngine;
-            options.lookup_strategy = LookupStrategy::FuzzyPartialPrefix;
+            options.lookup_strategy = LookupStrategy::Standard;
         });
     } else {
         ctx.editor

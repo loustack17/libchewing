@@ -1985,17 +1985,26 @@ void test_KB_HSU_example()
     chewing_delete(ctx);
 }
 
-void test_KB_HSU_q_as_first_tone()
+void test_KB_HSU_fuzzy_tone_keeps_hsu_parser()
 {
     ChewingContext *ctx;
 
     ctx = chewing_new();
     start_testcase(ctx);
     chewing_set_KBType(ctx, KB_HSU);
+    chewing_config_set_int(ctx, "chewing.fuzzy_tone_input", 1);
+
+    type_keystroke_by_string(ctx, "cen ");
+    ok_preedit_buffer(ctx, "心");
+    chewing_clean_preedit_buf(ctx);
+
+    type_keystroke_by_string(ctx, "d ");
+    ok_preedit_buffer(ctx, "的");
+    chewing_clean_preedit_buf(ctx);
 
     type_keystroke_by_string(ctx, "geq");
     ok_bopomofo_buffer(ctx, "");
-    ok_preedit_buffer(ctx, "機");
+    ok_preedit_buffer(ctx, "間");
 
     chewing_delete(ctx);
 }
@@ -2569,7 +2578,7 @@ void test_KB()
 {
     test_KB_HSU();
     test_KB_HSU_example();
-    test_KB_HSU_q_as_first_tone();
+    test_KB_HSU_fuzzy_tone_keeps_hsu_parser();
     test_KB_HSU_choice_append();
     test_KB_HSU_choice_append_select();
     test_KB_HSU_JVC();
